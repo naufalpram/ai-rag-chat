@@ -12,25 +12,27 @@ import { embeddings as embeddingsTable } from '../db/schema/embeddings';
 export const createResource = async (input: NewResourceParams) => {
   try {
     const { content } = insertResourceSchema.parse(input);
-    // console.log(content)
+    
     const [resource] = await db
       .insert(resources)
       .values({ content })
       .returning();
 
-    console.log(resource)
+    if (!resource.id) {
+      throw new Error('Failed to create new resource');
+    }
     
     const embeddings = await generateEmbeddings(content);
-    const embeddingEntries = embeddings.map(embedding => ({
-      resourceId: resource.id,
-      ...embedding,
-    }));
-    const [embds] = await db.insert(embeddingsTable).values(embeddingEntries).returning();
-    
-    console.log('embedding:', embds);
+    await db.insert(embeddingsTable).values(
+      embeddings.map(embedding => ({
+        resourceId: resource.id,
+        ...embedding,
+      }))
+    );
 
     return 'Resource successfully created and embedded.';
   } catch (error) {
+    console.error('Error creating resource:', error);
     return error instanceof Error && error.message.length > 0
       ? error.message
       : 'Error, please try again.';
