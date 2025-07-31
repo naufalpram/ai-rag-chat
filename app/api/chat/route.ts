@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         + Concise & Clear: Provide answers that are easy to understand and to the point.
 
       6. Tool Use Direction
-        You can add new resource/information to the database only if the variable addResourceMode is true. If the value is false, please respond clearly to the user in this current mode, it is not permitted to add new resources.
+        You can add new resource/information to the database only if the variable addResourceMode is true. If the value is false, please respond clearly to the user that it is not permitted to add new resources.
         const addResourceMode = ${addResourceMode}
       
       Example Interaction:

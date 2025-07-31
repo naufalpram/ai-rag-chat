@@ -1,11 +1,13 @@
 'use client';
 
+import { MemoizedMarkdown } from '@/components/memoized-markdown';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { useChat } from '@ai-sdk/react';
 import { Label } from '@radix-ui/react-label';
 import { DefaultChatTransport, UIMessage } from 'ai';
 import { FormEventHandler, Fragment, useEffect, useRef, useState } from 'react';
+import { Bot, User } from 'lucide-react';
 
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -91,23 +93,25 @@ interface MessageBlockProps {
 const MessageBlock = ({ message }: MessageBlockProps) => (
     <div className="whitespace-pre-wrap">
       <div>
-        <div className="font-bold">{message.role}</div>
-        {message.parts.map((part, index) => {
-            // text parts
-            if (part.type === 'text') return <p key={index}>{part.text}</p>;
+        <div className="font-bold flex gap-2 items-center">{message.role === 'user' ? <User size={20} /> : <Bot size={20} />} {message.role}</div>
+        <section className="pl-7">
+          {message.parts.map((part, index) => {
+              // text parts
+              if (part.type === 'text') return <MemoizedMarkdown key={index} id={message.id} content={part.text} />;
 
-            // add resource tool call
-            else if (part.type === 'tool-addResource') {
-              if (part.state === 'input-available' || part.state === 'input-streaming') return <p key={index} className='italic font-light'>Adding new resource...</p>;
-              else if (part.state === 'output-available') return <p key={index} className='italic font-light'>Resource added</p>;
-            }
+              // add resource tool call
+              else if (part.type === 'tool-addResource') {
+                if (part.state === 'input-available' || part.state === 'input-streaming') return <p key={index} className='italic font-light'>Adding new resource...</p>;
+                else if (part.state === 'output-available') return <p key={index} className='italic font-light'>Resource added</p>;
+              }
 
-            // get information tool call
-            else if (part.type === 'tool-getInformation') {
-              if (part.state === 'input-available' || part.state === 'input-streaming') return <p key={index} className='italic font-light'>Getting information...</p>;
-              else if (part.state === 'output-available') return <p key={index} className='italic font-light'>Based on system information</p>;
-            }
-        })}
+              // get information tool call
+              else if (part.type === 'tool-getInformation') {
+                if (part.state === 'input-available' || part.state === 'input-streaming') return <p key={index} className='italic font-light'>Getting information...</p>;
+                else if (part.state === 'output-available') return <p key={index} className='italic font-light'>Based on system information</p>;
+              }
+          })}
+        </section>
         
       </div>
     </div>
@@ -122,8 +126,10 @@ interface BasicMessageBlockProps {
 const BasicMessageBlock = ({ role, text, contentClassName }: BasicMessageBlockProps) => (
   <div className="whitespace-pre-wrap">
     <div>
-      <div className="font-bold">{role}</div>
-      <span className={contentClassName}>{text}</span>
+      <div className="font-bold flex gap-2 items-center">{role === 'user' ? <User size={20} /> : <Bot size={20} />} {role}</div>
+      <section className="pl-7">
+        <span className={contentClassName}>{text}</span>
+      </section>
     </div>
   </div>
 )
