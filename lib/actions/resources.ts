@@ -1,28 +1,30 @@
 'use server';
 
 import {
-  NewResourceParams,
-  insertResourceSchema,
   resources,
 } from '@/lib/db/schema/resources';
 import { db } from '../db';
 import { generateEmbeddings } from '../ai/embedding';
 import { embeddings as embeddingsTable } from '../db/schema/embeddings';
 
-export const createResource = async (input: NewResourceParams) => {
+interface ResourceParams {
+  content: string;
+  fileName: string;
+  sourceFileType: 'pdf' | 'html';
+}
+
+export const createResource = async ({ content, fileName, sourceFileType }: ResourceParams) => {
   try {
-    const { content } = insertResourceSchema.parse(input);
-    
     const [resource] = await db
       .insert(resources)
-      .values({ content })
+      .values({ fileName })
       .returning();
 
     if (!resource.id) {
       throw new Error('Failed to create new resource');
     }
     
-    const embeddings = await generateEmbeddings(content);
+    const embeddings = await generateEmbeddings(content, sourceFileType);
     await db.insert(embeddingsTable).values(
       embeddings.map(embedding => ({
         resourceId: resource.id,

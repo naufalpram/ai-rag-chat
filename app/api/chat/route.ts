@@ -1,12 +1,12 @@
 import { convertToModelMessages, streamText, UIMessage, stepCountIs, Tool } from 'ai';
-import { addResource, getInformation } from './tools';
+import { getInformation } from './tools';
 import { google } from '@ai-sdk/google';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages, addResourceMode = false }: { messages: UIMessage[], addResourceMode: boolean } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = streamText({
     model: google('gemini-2.0-flash'),
@@ -55,10 +55,6 @@ export async function POST(req: Request) {
         + Professional & Friendly: Maintain a professional yet approachable tone.
         + Helpful & Proactive: Be helpful and aim to fully resolve the user's query.
         + Concise & Clear: Provide answers that are easy to understand and to the point.
-
-      6. Tool Use Direction
-        You can add new resource/information to the database only if the variable addResourceMode is true. If the value is false, please respond clearly to the user that it is not permitted to add new resources.
-        const addResourceMode = ${addResourceMode}
       
       Example Interaction:
         User Query: "What is our company's policy on parental leave?"
@@ -70,8 +66,8 @@ export async function POST(req: Request) {
           To be eligible, you must have been a full-time employee for at least 12 months. For more detailed information or to initiate a leave request, please refer to the full policy document or contact the HR department.
     `,
     messages: convertToModelMessages(messages),
-    tools: { addResource, getInformation },
-    activeTools: addResourceMode ? ['addResource', 'getInformation'] : ['getInformation'],
+    tools: { getInformation },
+    activeTools: ['getInformation'],
     stopWhen: stepCountIs(5)
   });
 

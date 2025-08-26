@@ -3,6 +3,7 @@ import { google } from '@ai-sdk/google';
 import { cosineDistance, desc, gt, sql } from 'drizzle-orm';
 import { embeddings } from '../db/schema/embeddings';
 import { db } from '../db';
+import { chunkHtml, chunkText } from './chunk';
 
 const embeddingModel = google.textEmbeddingModel('text-embedding-004');
 
@@ -15,8 +16,9 @@ const generateChunks = (input: string): string[] => {
 
 export const generateEmbeddings = async (
   value: string,
+  sourceFileType: 'pdf' | 'html'
 ): Promise<Array<{ embedding: number[]; content: string }>> => {
-  const chunks = generateChunks(value);
+  const chunks = sourceFileType === 'pdf' ? chunkText(value) : chunkHtml(value);
   const { embeddings } = await embedMany({
     model: embeddingModel,
     values: chunks,
@@ -32,18 +34,18 @@ export const generateEmbedding = async (value: string): Promise<number[]> => {
     });
     return embedding;
   };
-  
+
 export const findRelevantContent = async (userQuery: string) => {
-    const userQueryEmbedded = await generateEmbedding(userQuery);
-    const similarity = sql<number>`1 - (${cosineDistance(
-      embeddings.embedding,
-      userQueryEmbedded,
-    )})`;
-    const similarGuides = await db
-      .select({ name: embeddings.content, similarity })
-      .from(embeddings)
-      .where(gt(similarity, 0.5))
-      .orderBy(t => desc(t.similarity))
-      .limit(4);
-    return similarGuides;
-};
+  const userQueryEmbedded = await generateEmbedding(userQuery);
+  const similarity = sql<number>`1 - (${cosineDistance(
+    embeddings.embedding,
+    userQueryEmbedded,
+  )})`;
+  const similarGuides = await db
+    .select({ name: embeddings.content, similarity })
+    .from(embeddings)
+    .where(gt(similarity, 0.5))
+    .orderBy(t => desc(t.similarity))
+    .limit(4);
+  return similarGuides;
+}; 

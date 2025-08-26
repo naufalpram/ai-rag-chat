@@ -9,7 +9,7 @@ export const resources = pgTable("resources", {
   id: varchar("id", { length: 191 })
     .primaryKey()
     .$defaultFn(() => nanoid()),
-  content: text("content").notNull(),
+  fileName: text("file_name").notNull(),
 
   createdAt: timestamp("created_at")
     .notNull()

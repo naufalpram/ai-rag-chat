@@ -2,12 +2,11 @@
 
 import { MemoizedMarkdown } from '@/components/memoized-markdown';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { useChat } from '@ai-sdk/react';
-import { Label } from '@radix-ui/react-label';
 import { DefaultChatTransport, UIMessage } from 'ai';
 import { FormEventHandler, Fragment, useEffect, useRef, useState } from 'react';
 import { Bot, User } from 'lucide-react';
+import AddResourceDrawer from '@/components/add-resource-drawer';
 
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -78,8 +77,9 @@ const Chat = () => {
               placeholder="Say something..."
             />
           </form>
-          <Switch id="add-resource-mode" checked={addResourceActive} onClick={handleSwitch} />
-          <Label htmlFor="add-resource-mode" className="text-sm text-white">Enable Add Resource</Label>
+          {/* <Switch id="add-resource-mode" checked={addResourceActive} onClick={handleSwitch} />
+          <Label htmlFor="add-resource-mode" className="text-sm text-white">Enable Add Resource</Label> */}
+          <AddResourceDrawer />
         </div>
       </div>
     </>
