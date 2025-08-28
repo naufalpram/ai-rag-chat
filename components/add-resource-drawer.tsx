@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/drawer"
 import { Input } from "./ui/input"
 import { Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 const AddResourceDrawer = () => {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -23,7 +24,7 @@ const AddResourceDrawer = () => {
   const handleSubmit: FormEventHandler = async (e) => {
     e.preventDefault();
     const fileInputs = fileRef.current?.files;
-    
+
     if (fileInputs && fileInputs.length > 0) {
       const file = fileInputs[0];
       try {
@@ -38,10 +39,10 @@ const AddResourceDrawer = () => {
           const data = await res.json().catch(() => ({}));
           throw new Error(data?.error ?? 'Upload failed');
         }
-        alert('Resource uploaded and processed successfully');
+        toast.success('Resource uploaded successfully!');
       } catch (error) {
         console.error('Error processing file:', error);
-        alert(error instanceof Error ? error.message : 'Error, please try again');
+        toast.error(error instanceof Error ? error.message : 'Error, please try again');
       } finally {
         setIsProcessing(false);
         fileRef.current.value = "";
@@ -58,7 +59,7 @@ const AddResourceDrawer = () => {
         <div className="mx-auto w-full max-w-lg">
           <DrawerHeader>
             <DrawerTitle>Add New Resource</DrawerTitle>
-            <DrawerDescription>Adding new resource to be used by EDTS Knowledge Assistant <br/>{'(Only accepts .html or .pdf files)'}</DrawerDescription>
+            <DrawerDescription>Adding new resource to be used by EDTS Knowledge Assistant through file extraction, chunking, and embedding <br/>{'(Only accepts .html or .pdf files)'}</DrawerDescription>
           </DrawerHeader>
           <form onSubmit={handleSubmit}>
             <div className="p-4 pb-0 flex items-center justify-center">

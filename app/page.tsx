@@ -7,6 +7,7 @@ import { DefaultChatTransport, UIMessage } from 'ai';
 import { FormEventHandler, Fragment, useEffect, useRef, useState } from 'react';
 import { Bot, User } from 'lucide-react';
 import AddResourceDrawer from '@/components/add-resource-drawer';
+import { Toaster } from 'sonner';
 
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +83,7 @@ const Chat = () => {
           <AddResourceDrawer />
         </div>
       </div>
+      <Toaster position="top-center" richColors />
     </>
   );
 }
