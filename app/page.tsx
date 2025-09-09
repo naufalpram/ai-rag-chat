@@ -1,10 +1,10 @@
 'use client';
 
-import { MemoizedMarkdown } from '@/components/memoized-markdown';
+import { Streamdown } from 'streamdown';
 import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
-import { FormEventHandler, Fragment, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, Fragment, useEffect, useRef } from 'react';
 import { Bot, User } from 'lucide-react';
 import AddResourceDrawer from '@/components/add-resource-drawer';
 import { Toaster } from 'sonner';
@@ -12,7 +12,6 @@ import { Toaster } from 'sonner';
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [addResourceActive, setAddResourceActive] = useState<boolean>(false);
   const { messages, sendMessage, status, error, regenerate } = useChat<UIMessage>({
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -30,12 +29,7 @@ const Chat = () => {
     if (inputRef.current) {
       const userInput = inputRef.current?.value.trim();
       if (userInput) {
-        sendMessage(
-          { text: userInput },
-          {
-            body: { addResourceMode: addResourceActive }
-          }
-        );
+        sendMessage({ text: userInput });
       }
       inputRef.current.value = '';
     }
@@ -46,8 +40,6 @@ const Chat = () => {
   };
 
   const lastMessageIsUser = messages[messages.length - 1]?.role === 'user';
-
-  const handleSwitch = () => setAddResourceActive((prev) => !prev);
   
   return (
     <>
@@ -63,7 +55,7 @@ const Chat = () => {
                 </>
               ) : <MessageBlock message={message} />}
               {(lastMessageIsUser && isLastMessage(message.id) && status === 'submitted') && (
-                <BasicMessageBlock role="assistant" text="Typing" contentClassName="animate-pulse" />
+                <BasicMessageBlock role="assistant" text="Thinking..." contentClassName="animate-pulse" />
               )}
             </Fragment>
           ))}
@@ -78,8 +70,6 @@ const Chat = () => {
               placeholder="Say something..."
             />
           </form>
-          {/* <Switch id="add-resource-mode" checked={addResourceActive} onClick={handleSwitch} />
-          <Label htmlFor="add-resource-mode" className="text-sm text-white">Enable Add Resource</Label> */}
           <AddResourceDrawer />
         </div>
       </div>
@@ -99,7 +89,7 @@ const MessageBlock = ({ message }: MessageBlockProps) => (
         <section className="pl-7">
           {message.parts.map((part, index) => {
               // text parts
-              if (part.type === 'text') return <MemoizedMarkdown key={index} id={message.id} content={part.text} />;
+              if (part.type === 'text') return <Streamdown key={index}>{part.text}</Streamdown>;
 
               // add resource tool call
               else if (part.type === 'tool-addResource') {

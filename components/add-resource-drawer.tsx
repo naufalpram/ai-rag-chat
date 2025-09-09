@@ -31,7 +31,7 @@ const AddResourceDrawer = () => {
         setIsProcessing(true);
         const formData = new FormData();
         formData.append('file', file);
-        const res = await fetch('/api/resources', {
+        const res = await fetch('/api/resources/voyage', {
           method: 'POST',
           body: formData,
         });

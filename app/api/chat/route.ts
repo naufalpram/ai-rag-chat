@@ -1,5 +1,5 @@
 import { convertToModelMessages, streamText, UIMessage, stepCountIs, Tool } from 'ai';
-import { getInformation } from './tools';
+import { getInformation, getInformationMultiModal } from './tools';
 import { google } from '@ai-sdk/google';
 
 // Allow streaming responses up to 30 seconds
@@ -66,8 +66,8 @@ export async function POST(req: Request) {
           To be eligible, you must have been a full-time employee for at least 12 months. For more detailed information or to initiate a leave request, please refer to the full policy document or contact the HR department.
     `,
     messages: convertToModelMessages(messages),
-    tools: { getInformation },
-    activeTools: ['getInformation'],
+    tools: { getInformation, getInformationMultiModal },
+    activeTools: ['getInformationMultiModal'],
     stopWhen: stepCountIs(5)
   });
 
