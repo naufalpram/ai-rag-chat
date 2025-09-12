@@ -8,6 +8,8 @@ import { FormEventHandler, Fragment, useEffect, useRef, useState } from 'react';
 import { Bot, User, Square } from 'lucide-react';
 import AddResourceDrawer from '@/components/add-resource-drawer';
 import { Toaster } from 'sonner';
+import { Source, Sources, SourcesContent, SourcesTrigger } from '@/components/ai-elements/sources';
+import { GetInformationOutput } from './api/chat/tools';
 
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -16,8 +18,7 @@ const Chat = () => {
     transport: new DefaultChatTransport({
       api: '/api/chat',
       credentials: 'same-origin',
-    }),
-
+    })
   });
 
   useEffect(() => {
@@ -68,7 +69,7 @@ const Chat = () => {
         </div>
 
         <div className="fixed bottom-4 mx-auto mb-8 px-3 py-2 w-full max-w-2xl flex gap-4 items-center rounded-xl bg-[#272727]/70">
-          <form className='w-full flex gap-4 items-center'>
+          <form onSubmit={handleSubmit} className='w-full flex gap-4 items-center'>
             <input
               ref={inputRef}
               className="w-full p-2 border border-gray-300 rounded-md shadow-xl"
@@ -111,7 +112,24 @@ const MessageBlock = ({ message }: MessageBlockProps) => (
               // get information tool call
               else if (part.type === 'tool-getInformation') {
                 if (part.state === 'input-available' || part.state === 'input-streaming') return <p key={index} className='italic font-light'>Getting information...</p>;
-                else if (part.state === 'output-available') return <p key={index} className='italic font-light'>Based on system information</p>;
+                else if (part.state === 'output-available') {
+                  const output = part.output as GetInformationOutput;
+                  return (
+                    <div key={part.toolCallId} className="relative">
+                      <p key={index} className='italic font-light'>Based on system information</p>
+                      {Array.isArray(output.sources) && output.sources.length > 0 && (
+                        <Sources className="text-blue-400">
+                          <SourcesTrigger count={output.sources.length} />
+                          {output.sources.map((source, idx) => (
+                            <SourcesContent key={`${message.id}-${idx}`}>
+                              <Source title={source} />
+                            </SourcesContent>
+                          ))}
+                        </Sources>
+                      )}
+                    </div>
+                  );
+                }
               }
           })}
         </section>

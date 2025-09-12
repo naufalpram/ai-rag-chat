@@ -14,14 +14,21 @@ import z from "zod";
 //     execute: async ({ content }) => createResource({ content })
 // });
 
+const informationOutput = z.object({
+  guides: z.array(z.object({
+    name: z.string(),
+    similarity: z.number()
+  })),
+  sources: z.array(z.string())
+})
+
+export type GetInformationOutput = z.infer<typeof informationOutput>;
+
 export const getInformation = tool({
     description: `get information from your knowledge base to answer questions.`,
     inputSchema: z.object({
       question: z.string().describe('the users question'),
     }),
-    outputSchema: z.array(z.object({
-        name: z.string(),
-        similarity: z.number()
-    })),
+    outputSchema: informationOutput,
     execute: async ({ question }) => findRelevantContent(question),
 })

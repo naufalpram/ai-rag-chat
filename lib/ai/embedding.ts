@@ -1,9 +1,10 @@
 import { embed, embedMany } from 'ai';
 import { google } from '@ai-sdk/google';
-import { cosineDistance, desc, gt, sql } from 'drizzle-orm';
+import { cosineDistance, desc, eq, gt, sql } from 'drizzle-orm';
 import { embeddings } from '../db/schema/embeddings';
 import { db } from '../db';
 import { chunkHtml, chunkText } from './chunk';
+import { resources } from '../db/schema/resources';
 
 const embeddingModel = google.textEmbeddingModel('text-embedding-004');
 
@@ -42,10 +43,18 @@ export const findRelevantContent = async (userQuery: string) => {
     userQueryEmbedded,
   )})`;
   const similarGuides = await db
-    .select({ name: embeddings.content, similarity })
+    .select({ 
+      name: embeddings.content, 
+      similarity,
+      fileName: resources.fileName 
+    })
     .from(embeddings)
+    .innerJoin(resources, eq(embeddings.resourceId, resources.id))
     .where(gt(similarity, 0.5))
     .orderBy(t => desc(t.similarity))
     .limit(4);
-  return similarGuides;
+
+  const sources = new Set(similarGuides.map((guide) => guide.fileName.split('.')[0]));
+  const guides = similarGuides.map((guide) => ({ text: guide.name, similarity: guide.similarity }));
+  return { sources: Array.from(sources), guides };
 }; 
