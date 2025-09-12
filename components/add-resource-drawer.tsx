@@ -14,7 +14,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Input } from "./ui/input"
-import { Loader2 } from "lucide-react"
+import { Loader2, PackagePlus } from "lucide-react"
 import { toast } from "sonner"
 
 const AddResourceDrawer = () => {
@@ -53,7 +53,7 @@ const AddResourceDrawer = () => {
   return (
     <Drawer>
       <DrawerTrigger asChild>
-        <Button>Add Resource</Button>
+        <Button><PackagePlus size={24} /></Button>
       </DrawerTrigger>
       <DrawerContent>
         <div className="mx-auto w-full max-w-lg">

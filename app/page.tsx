@@ -12,7 +12,6 @@ import { Toaster } from 'sonner';
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [addResourceActive, setAddResourceActive] = useState<boolean>(false);
   const { messages, sendMessage, status, error, regenerate } = useChat<UIMessage>({
     transport: new DefaultChatTransport({
       api: '/api/chat',
@@ -30,12 +29,7 @@ const Chat = () => {
     if (inputRef.current) {
       const userInput = inputRef.current?.value.trim();
       if (userInput) {
-        sendMessage(
-          { text: userInput },
-          {
-            body: { addResourceMode: addResourceActive }
-          }
-        );
+        sendMessage({ text: userInput });
       }
       inputRef.current.value = '';
     }
@@ -46,8 +40,6 @@ const Chat = () => {
   };
 
   const lastMessageIsUser = messages[messages.length - 1]?.role === 'user';
-
-  const handleSwitch = () => setAddResourceActive((prev) => !prev);
   
   return (
     <>
@@ -70,19 +62,20 @@ const Chat = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="fixed bottom-4 mx-auto mb-8 px-3 py-2 w-full max-w-2xl flex gap-4 items-center rounded-lg bg-[#272727]/70">
-          <form onSubmit={handleSubmit} className='w-full'>
+        <div className="fixed bottom-4 mx-auto mb-8 px-3 py-2 px-2 w-full max-w-2xl flex gap-4 items-center rounded-lg bg-[#272727]/70">
+          <form onSubmit={handleSubmit} className='w-full flex gap-4 items-center'>
             <input
               ref={inputRef}
               className="w-full p-2 border border-gray-300 rounded shadow-xl"
               placeholder="Say something..."
             />
+            <Button type="submit">Submit</Button>
           </form>
-          {/* <Switch id="add-resource-mode" checked={addResourceActive} onClick={handleSwitch} />
-          <Label htmlFor="add-resource-mode" className="text-sm text-white">Enable Add Resource</Label> */}
-          <AddResourceDrawer />
         </div>
       </div>
+      <section className="fixed right-8 bottom-8">
+        <AddResourceDrawer />
+      </section>
       <Toaster position="top-center" richColors />
     </>
   );
