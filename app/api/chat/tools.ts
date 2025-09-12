@@ -16,7 +16,7 @@ import z from "zod";
 
 const informationOutput = z.object({
   guides: z.array(z.object({
-    name: z.string(),
+    text: z.string(),
     similarity: z.number()
   })),
   sources: z.array(z.string())

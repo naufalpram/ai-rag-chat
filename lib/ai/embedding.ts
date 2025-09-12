@@ -5,6 +5,7 @@ import { embeddings } from '../db/schema/embeddings';
 import { db } from '../db';
 import { chunkHtml, chunkText } from './chunk';
 import { resources } from '../db/schema/resources';
+import { GetInformationOutput } from '@/app/api/chat/tools';
 
 const embeddingModel = google.textEmbeddingModel('text-embedding-004');
 
