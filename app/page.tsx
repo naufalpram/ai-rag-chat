@@ -98,7 +98,7 @@ const MessageBlock = ({ message }: MessageBlockProps) => (
               }
 
               // get information tool call
-              else if (part.type === 'tool-getInformation') {
+              else if (part.type === 'tool-getInformation' || part.type === 'tool-getInformationMultiModal') {
                 if (part.state === 'input-available' || part.state === 'input-streaming') return <p key={index} className='italic font-light'>Getting information...</p>;
                 else if (part.state === 'output-available') return <p key={index} className='italic font-light'>Based on system information</p>;
               }
