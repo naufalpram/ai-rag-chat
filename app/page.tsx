@@ -5,14 +5,14 @@ import { Button } from '@/components/ui/button';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
 import { FormEventHandler, Fragment, useEffect, useRef, useState } from 'react';
-import { Bot, User } from 'lucide-react';
+import { Bot, User, Square } from 'lucide-react';
 import AddResourceDrawer from '@/components/add-resource-drawer';
 import { Toaster } from 'sonner';
 
 const Chat = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, status, error, regenerate } = useChat<UIMessage>({
+  const { messages, sendMessage, status, error, regenerate, setMessages, stop } = useChat<UIMessage>({
     transport: new DefaultChatTransport({
       api: '/api/chat',
       credentials: 'same-origin',
@@ -35,11 +35,16 @@ const Chat = () => {
     }
   }
 
+  const handleResetChat = () => {
+    setMessages([]);
+  }
+
   const isLastMessage = (id: string) => {
     return id === messages[messages.length - 1].id
   };
 
   const lastMessageIsUser = messages[messages.length - 1]?.role === 'user';
+  const isStreaming = status === 'submitted' || status === 'streaming';
   
   return (
     <>
@@ -55,21 +60,24 @@ const Chat = () => {
                 </>
               ) : <MessageBlock message={message} />}
               {(lastMessageIsUser && isLastMessage(message.id) && status === 'submitted') && (
-                <BasicMessageBlock role="assistant" text="Typing" contentClassName="animate-pulse" />
+                <BasicMessageBlock role="assistant" text="Thinking" contentClassName="animate-pulse" />
               )}
             </Fragment>
           ))}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="fixed bottom-4 mx-auto mb-8 px-3 py-2 px-2 w-full max-w-2xl flex gap-4 items-center rounded-lg bg-[#272727]/70">
-          <form onSubmit={handleSubmit} className='w-full flex gap-4 items-center'>
+        <div className="fixed bottom-4 mx-auto mb-8 px-3 py-2 w-full max-w-2xl flex gap-4 items-center rounded-xl bg-[#272727]/70">
+          <form className='w-full flex gap-4 items-center'>
             <input
               ref={inputRef}
-              className="w-full p-2 border border-gray-300 rounded shadow-xl"
+              className="w-full p-2 border border-gray-300 rounded-md shadow-xl"
               placeholder="Say something..."
             />
-            <Button type="submit">Submit</Button>
+            <Button type="button" onClick={!isStreaming ? handleSubmit : stop}>
+              {isStreaming ? <span className="flex items-center gap-1"><Square size={16} /> Stop</span> : 'Submit'}
+            </Button>
+            <Button type="button" variant="secondary" disabled={isStreaming} onClick={handleResetChat}>Reset Chat</Button>
           </form>
         </div>
       </div>
